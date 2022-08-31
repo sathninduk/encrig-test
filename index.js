@@ -17,16 +17,16 @@ exports.generate = function (address, secret) {
     return jwt.sign({name: "ether-auth token", address: address, randomToken: randomToken}, secret, "", "");
 }
 
-exports.validate = function (token, signature, secret) {
+exports.validate = async function (token, signature, secret) {
     let decodedJwt = jwt.verify(token, secret, "", "");
     try {
         const signerAddr = ethers.utils.verifyMessage(token, signature);
         if (signerAddr === decodedJwt.address) {
-            return {address: decodedJwt.address};
+            return {address: decodedJwt.address, authorized: true, err: null};
         } else {
-            return false;
+            return "Invalid signature";
         }
     } catch (err) {
-        return false;
+        return err;
     }
 }
